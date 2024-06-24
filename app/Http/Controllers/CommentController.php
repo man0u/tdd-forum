@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,15 @@ class CommentController extends Controller
      */
     public function store(Request $request, Post $post)
     {
-        //
+        $validatedData = $request->validate(['body' => ['required', 'string', 'max:2500']]);
+
+        Comment::create([
+         ...$validatedData,
+            'post_id' => $post->id,
+            'user_id' => $request->user()->id
+        ]);
+
+        return to_route('posts.show', $post);
     }
 
     /**
