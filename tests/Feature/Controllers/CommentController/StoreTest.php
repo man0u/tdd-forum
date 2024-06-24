@@ -19,3 +19,32 @@ it('can store a comment', function () {
        'body' => 'This is a comment'
     ]);
 });
+
+
+it('redirects to the post show page', function () {
+    $post = Post::factory()->create();
+
+    actingAs(User::factory()->create())
+        ->post(route('posts.comments.store', $post), [
+        'body' => 'This is a comment'
+    ])
+        ->assertRedirect(route('posts.show', $post));
+});
+
+
+it('it requires a valid body', function ($value) {
+    $post = Post::factory()->create();
+
+    actingAs(User::factory()->create())
+        ->post(route('posts.comments.store', $post), [
+            'body' => $value
+        ])
+        ->assertInvalid('body');
+})->with([
+    null,
+    1,
+    true,
+    1.5,
+    str_repeat('a', 2501)
+]);
+
