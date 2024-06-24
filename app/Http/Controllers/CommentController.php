@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class CommentController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -34,7 +35,7 @@ class CommentController extends Controller
         $validatedData = $request->validate(['body' => ['required', 'string', 'max:2500']]);
 
         Comment::create([
-         ...$validatedData,
+            ...$validatedData,
             'post_id' => $post->id,
             'user_id' => $request->user()->id
         ]);
@@ -69,12 +70,16 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Comment $comment)
+    public function destroy(Request $request, Comment $comment)
     {
         $this->authorize('delete', $comment);
 
         $comment->delete();
 
-        return to_route('posts.show', $comment->post_id);
+        return to_route('posts.show', [
+                'post' => $comment->post_id,
+                'page' => $request->query('page')
+            ]
+        );
     }
 }
